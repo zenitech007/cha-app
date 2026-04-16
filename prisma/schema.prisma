@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Artist {
+  id              String                        @id @default(uuid())
+  slug            String                        @unique
+  name            String
+  bio             String?                       @db.Text
+  imageUrl        String?                       @map("image_url")
+  officialWebsite String?                       @map("official_website")
+  createdAt       DateTime                      @default(now()) @map("created_at")
+  embedding       Unsupported("vector(1536)")?
+
+  albums       Album[]
+  events       Event[]
+  charityLinks CharityLink[]
+
+  @@map("artists")
+}
+
+model Album {
+  id          String  @id @default(uuid())
+  artistId    String  @map("artist_id")
+  title       String
+  releaseYear Int     @map("release_year")
+  coverUrl    String? @map("cover_url")
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([artistId, title, releaseYear])
+  @@map("albums")
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  artistId  String   @map("artist_id")
+  venue     String
+  location  String
+  date      DateTime
+  ticketUrl String?  @map("ticket_url")
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@map("events")
+}
+
+model CharityLink {
+  id               String  @id @default(uuid())
+  artistId         String  @map("artist_id")
+  organizationName String  @map("organization_name")
+  donationUrl      String? @map("donation_url")
+
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@map("charity_links")
+}
