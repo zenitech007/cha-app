@@ -20,10 +20,10 @@ export default function Footer() {
                 className="text-amber-400 font-bold text-base tracking-widest uppercase"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                Country Heritage Alliance
+                Universal Music Hub
               </div>
               <div className="text-stone-600 text-xs">
-                The Premier Country Music Reference Database
+                The Premier Global Music Reference Database
               </div>
             </div>
           </div>
@@ -48,7 +48,7 @@ export default function Footer() {
         </div>
         <div className="mt-10 pt-6 border-t border-stone-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-stone-600 text-xs">
           <p>
-            © {new Date().getFullYear()} Country Heritage Alliance. All rights
+            © {new Date().getFullYear()} Universal Music Hub. All rights
             reserved.
           </p>
           <div className="flex items-center gap-1">
@@ -59,7 +59,7 @@ export default function Footer() {
             >
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
-            <span>Preserving country music heritage since 2008</span>
+            <span>Preserving global music heritage since 2024</span>
           </div>
         </div>
       </div>

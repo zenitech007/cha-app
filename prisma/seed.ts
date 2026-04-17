@@ -1,10 +1,14 @@
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 import dotenv from "dotenv";
 
+// Load environment variables
 dotenv.config();
 
-const adapter = new PrismaPg(process.env.DATABASE_URL!);
+// Initialize the database connection pool
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 const artists = [
@@ -18,10 +22,10 @@ const artists = [
     wikipediaUrl: "https://en.wikipedia.org/wiki/Daft_Punk",
     websiteUrl: "https://daftpunk.com",
     albums: [
-      { title: "Homework", releaseYear: 1997, coverUrl: null },
-      { title: "Discovery", releaseYear: 2001, coverUrl: null },
-      { title: "Human After All", releaseYear: 2005, coverUrl: null },
-      { title: "Random Access Memories", releaseYear: 2013, coverUrl: null },
+      { title: "Homework", releaseYear: 1997 },
+      { title: "Discovery", releaseYear: 2001 },
+      { title: "Human After All", releaseYear: 2005 },
+      { title: "Random Access Memories", releaseYear: 2013 },
     ],
     charityLinks: [
       {
@@ -40,13 +44,13 @@ const artists = [
     wikipediaUrl: "https://en.wikipedia.org/wiki/The_Beatles",
     websiteUrl: "https://www.thebeatles.com",
     albums: [
-      { title: "Please Please Me", releaseYear: 1963, coverUrl: null },
-      { title: "A Hard Day's Night", releaseYear: 1964, coverUrl: null },
-      { title: "Rubber Soul", releaseYear: 1965, coverUrl: null },
-      { title: "Revolver", releaseYear: 1966, coverUrl: null },
-      { title: "Sgt. Pepper's Lonely Hearts Club Band", releaseYear: 1967, coverUrl: null },
-      { title: "Abbey Road", releaseYear: 1969, coverUrl: null },
-      { title: "Let It Be", releaseYear: 1970, coverUrl: null },
+      { title: "Please Please Me", releaseYear: 1963 },
+      { title: "A Hard Day's Night", releaseYear: 1964 },
+      { title: "Rubber Soul", releaseYear: 1965 },
+      { title: "Revolver", releaseYear: 1966 },
+      { title: "Sgt. Pepper's Lonely Hearts Club Band", releaseYear: 1967 },
+      { title: "Abbey Road", releaseYear: 1969 },
+      { title: "Let It Be", releaseYear: 1970 },
     ],
     charityLinks: [
       {
@@ -65,12 +69,12 @@ const artists = [
     wikipediaUrl: "https://en.wikipedia.org/wiki/Hans_Zimmer",
     websiteUrl: "https://hanszimmer.com",
     albums: [
-      { title: "The Lion King (Soundtrack)", releaseYear: 1994, coverUrl: null },
-      { title: "Gladiator (Soundtrack)", releaseYear: 2000, coverUrl: null },
-      { title: "The Dark Knight (Soundtrack)", releaseYear: 2008, coverUrl: null },
-      { title: "Inception (Soundtrack)", releaseYear: 2010, coverUrl: null },
-      { title: "Interstellar (Soundtrack)", releaseYear: 2014, coverUrl: null },
-      { title: "Dune (Soundtrack)", releaseYear: 2021, coverUrl: null },
+      { title: "The Lion King (Soundtrack)", releaseYear: 1994 },
+      { title: "Gladiator (Soundtrack)", releaseYear: 2000 },
+      { title: "The Dark Knight (Soundtrack)", releaseYear: 2008 },
+      { title: "Inception (Soundtrack)", releaseYear: 2010 },
+      { title: "Interstellar (Soundtrack)", releaseYear: 2014 },
+      { title: "Dune (Soundtrack)", releaseYear: 2021 },
     ],
     charityLinks: [
       {
@@ -89,11 +93,11 @@ const artists = [
     wikipediaUrl: "https://en.wikipedia.org/wiki/Fela_Kuti",
     websiteUrl: "https://felakuti.com",
     albums: [
-      { title: "Zombie", releaseYear: 1977, coverUrl: null },
-      { title: "Expensive Shit", releaseYear: 1975, coverUrl: null },
-      { title: "Gentleman", releaseYear: 1973, coverUrl: null },
-      { title: "Water No Get Enemy", releaseYear: 1975, coverUrl: null },
-      { title: "Sorrow, Tears and Blood", releaseYear: 1977, coverUrl: null },
+      { title: "Zombie", releaseYear: 1977 },
+      { title: "Expensive Shit", releaseYear: 1975 },
+      { title: "Gentleman", releaseYear: 1973 },
+      { title: "Water No Get Enemy", releaseYear: 1975 },
+      { title: "Sorrow, Tears and Blood", releaseYear: 1977 },
     ],
     charityLinks: [
       {
@@ -105,12 +109,12 @@ const artists = [
 ];
 
 async function main() {
-  console.log("Clearing existing data...");
+  console.log("🧹 Clearing existing data...");
   await prisma.charityLink.deleteMany();
   await prisma.event.deleteMany();
   await prisma.album.deleteMany();
   await prisma.artist.deleteMany();
-  console.log("Database cleared.");
+  console.log("✅ Database cleared.");
 
   for (const data of artists) {
     const artist = await prisma.artist.create({
@@ -119,7 +123,6 @@ async function main() {
         name: data.name,
         bio: data.bio,
         imageUrl: data.imageUrl,
-        officialWebsite: data.officialWebsite,
         originCountry: data.originCountry,
         wikipediaUrl: data.wikipediaUrl,
         websiteUrl: data.websiteUrl,
@@ -132,10 +135,10 @@ async function main() {
       },
     });
 
-    console.log(`  Seeded: ${artist.name} (${artist.originCountry}) — ${data.albums.length} albums`);
+    console.log(`🌍 Seeded: ${artist.name} (${artist.originCountry}) — ${data.albums.length} albums`);
   }
 
-  console.log(`\nDone! Seeded ${artists.length} global artists.`);
+  console.log(`\n🎉 Done! Seeded ${artists.length} global artists into Universal Music Hub.`);
 }
 
 main()

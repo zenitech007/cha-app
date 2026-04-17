@@ -3,33 +3,33 @@
 export default function AboutSection() {
   const pillars = [
     {
-      icon: "🎸",
+      icon: "🌍",
       title: "Comprehensive Records",
-      desc: "Detailed profiles covering biographies, discographies, awards, and career timelines for artists spanning six decades of country music history.",
+      desc: "Detailed profiles covering biographies, discographies, awards, and career timelines for artists spanning decades of global music history.",
     },
     {
       icon: "🏆",
       title: "Heritage Preservation",
-      desc: "Dedicated to safeguarding the legacy of country music legends, from the earliest honky tonk pioneers to the defining voices of the outlaw movement.",
+      desc: "Dedicated to safeguarding the legacy of music legends across all cultures, from early classical composers to the defining voices of modern pop and afrobeat.",
     },
     {
       icon: "🎵",
       title: "Genre Exploration",
-      desc: "Navigate the rich tapestry of country music sub-genres — from traditional Nashville Sound to Bluegrass, Americana, Country Rock, and beyond.",
+      desc: "Navigate the rich tapestry of musical genres — from traditional Folk to Electronic, Hip-Hop, Classical, Rock, Afrobeat, and beyond.",
     },
     {
-      icon: "🌾",
+      icon: "🤝",
       title: "Community Driven",
-      desc: "Built in partnership with historians, music scholars, and dedicated fans who share a passion for authentic country music culture and storytelling.",
+      desc: "Built in partnership with historians, music scholars, and dedicated fans who share a passion for authentic musical cultures and storytelling.",
     },
   ];
 
   const timeline = [
-    { year: "1920s–40s", label: "Old-Time & Western Swing", color: "from-amber-900 to-amber-700" },
-    { year: "1950s–60s", label: "Nashville Sound & Honky Tonk", color: "from-amber-700 to-yellow-600" },
-    { year: "1970s", label: "Outlaw Movement", color: "from-yellow-600 to-orange-600" },
-    { year: "1980s–90s", label: "Country Pop & New Traditionalists", color: "from-orange-600 to-red-700" },
-    { year: "2000s+", label: "Americana & Contemporary", color: "from-red-700 to-rose-800" },
+    { year: "Pre-1950s", label: "Classical, Jazz & Folk Roots", color: "from-amber-900 to-amber-700" },
+    { year: "1950s–60s", label: "Rock & Roll Revolution", color: "from-amber-700 to-yellow-600" },
+    { year: "1970s–80s", label: "Disco, Funk & Early Hip-Hop", color: "from-yellow-600 to-orange-600" },
+    { year: "1990s–00s", label: "Pop Explosion & Electronic Emergence", color: "from-orange-600 to-red-700" },
+    { year: "2010s+", label: "Global Pop & Contemporary Afrobeat", color: "from-red-700 to-rose-800" },
   ];
 
   return (
@@ -45,15 +45,15 @@ export default function AboutSection() {
             className="text-4xl sm:text-5xl font-bold text-white mb-6"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            About the Alliance
+            About Universal Music Hub
           </h2>
           <p className="text-stone-400 max-w-3xl mx-auto text-lg leading-relaxed">
             The{" "}
             <span className="text-amber-400 font-semibold">
-              Country Heritage Alliance
+              Universal Music Hub
             </span>{" "}
-            is a non-profit initiative committed to documenting, celebrating, and
-            preserving the rich history of country music. We serve as the
+            is a dedicated initiative committed to documenting, celebrating, and
+            preserving the rich history of global music. We serve as the
             definitive reference for researchers, fans, and historians worldwide.
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function AboutSection() {
             className="text-white text-2xl font-bold text-center mb-10"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            A Journey Through Country Music History
+            A Journey Through Global Music History
           </h3>
           <div className="space-y-4">
             {timeline.map((item) => (
@@ -110,17 +110,17 @@ export default function AboutSection() {
         <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-amber-900/40 via-stone-900 to-stone-900 border border-amber-800/30 p-10 sm:p-14 text-center">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-amber-900/20 via-transparent to-transparent" />
           <div className="relative z-10">
-            <div className="text-5xl mb-4">🤠</div>
+            <div className="text-5xl mb-4">🎤</div>
             <h3
               className="text-3xl sm:text-4xl font-bold text-white mb-4"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
-              Know a Country Music Legend?
+              Know a Musical Legend?
             </h3>
             <p className="text-stone-400 max-w-xl mx-auto mb-8 text-sm leading-relaxed">
               We're always expanding our database. If you know of an artist who
               deserves to be recognized in our directory, we'd love to hear from
-              you. Help us preserve country music heritage for generations to come.
+              you. Help us preserve global music heritage for generations to come.
             </p>
             <button className="px-8 py-4 bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold rounded-full transition-all duration-200 shadow-xl shadow-amber-900/30 hover:scale-105">
               Submit an Artist

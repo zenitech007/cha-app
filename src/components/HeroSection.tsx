@@ -15,7 +15,7 @@ export default function HeroSection({
       <div className="absolute inset-0">
         <img
           src="/images/hero-bg.jpg"
-          alt="Country landscape"
+          alt="Live concert landscape"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-linear-to-b from-stone-950/70 via-stone-950/50 to-stone-950" />
@@ -100,10 +100,10 @@ export default function HeroSection({
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-10 sm:mb-16 px-2 sm:px-0">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-10 sm:mb-16 px-4 sm:px-0">
           <button
             onClick={onExplore}
-            className="group px-8 py-4 bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold rounded-full transition-all duration-300 shadow-xl shadow-amber-900/40 hover:shadow-amber-700/50 hover:scale-105 flex items-center justify-center gap-2"
+            className="w-full sm:w-auto group px-8 py-4 bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold rounded-full transition-all duration-300 shadow-xl shadow-amber-900/40 hover:shadow-amber-700/50 hover:scale-105 flex items-center justify-center gap-2"
           >
             <svg
               className="w-5 h-5"
@@ -122,7 +122,7 @@ export default function HeroSection({
           </button>
           <button
             onClick={onFeatured}
-            className="px-8 py-4 bg-transparent border border-amber-600/50 hover:border-amber-500 text-amber-300 hover:text-amber-200 font-semibold rounded-full transition-all duration-300 hover:bg-amber-900/20 flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-4 bg-transparent border border-amber-600/50 hover:border-amber-500 text-amber-300 hover:text-amber-200 font-semibold rounded-full transition-all duration-300 hover:bg-amber-900/20 flex items-center justify-center gap-2"
           >
             <svg
               className="w-5 h-5"
@@ -145,9 +145,9 @@ export default function HeroSection({
         <div className="flex flex-wrap justify-center gap-8 sm:gap-16">
           {[
             { value: `${totalArtists}+`, label: "Artists Listed" },
-            { value: "9", label: "Genres Covered" },
+            { value: "9+", label: "Genres Covered" },
             { value: "100+", label: "Years of History" },
-            { value: "7", label: "Musical Eras" },
+            { value: "5", label: "Musical Eras" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div
