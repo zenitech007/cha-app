@@ -41,6 +41,7 @@ export async function getArtistEvents(
       city: [
         event._embedded?.venues?.[0]?.city?.name,
         event._embedded?.venues?.[0]?.state?.stateCode,
+        event._embedded?.venues?.[0]?.country?.name,
       ]
         .filter(Boolean)
         .join(", ") || "TBA",

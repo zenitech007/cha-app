@@ -6,12 +6,18 @@ import {
   getArtistAlbums,
   type SpotifyAlbum,
 } from "@/lib/spotify";
+import { fetchLastFmBio } from "@/lib/lastfm";
+import { fetchMusicBrainzData } from "@/lib/musicbrainz";
 
 export interface SpotifyArtistData {
   name: string;
   genres: string;
   imageUrl: string | null;
   albums: SpotifyAlbum[];
+  bio: string | null;
+  originCountry: string | null;
+  wikipediaUrl: string | null;
+  officialWebsite: string | null;
 }
 
 export type FetchArtistResult =
@@ -28,7 +34,17 @@ export async function fetchArtistDataAction(
   if (!trimmed) return { ok: false, error: "Please enter an artist name." };
 
   try {
-    const artist = await searchSpotifyArtist(trimmed);
+    // Run all three APIs in parallel
+    const [artist, lastfm, mb] = await Promise.all([
+      searchSpotifyArtist(trimmed),
+      fetchLastFmBio(trimmed).catch(() => ({ bio: null })),
+      fetchMusicBrainzData(trimmed).catch(() => ({
+        country: null,
+        wikipediaUrl: null,
+        officialWebsite: null,
+      })),
+    ]);
+
     if (!artist) {
       return { ok: false, error: `No Spotify results for "${trimmed}".` };
     }
@@ -42,6 +58,10 @@ export async function fetchArtistDataAction(
         genres: artist.genres.join(", "),
         imageUrl: artist.imageUrl,
         albums,
+        bio: lastfm.bio,
+        originCountry: mb.country,
+        wikipediaUrl: mb.wikipediaUrl,
+        officialWebsite: mb.officialWebsite,
       },
     };
   } catch (e) {

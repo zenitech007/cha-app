@@ -14,6 +14,9 @@ model Artist {
   bio             String?                       @db.Text
   imageUrl        String?                       @map("image_url")
   officialWebsite String?                       @map("official_website")
+  originCountry   String?                       @map("origin_country")
+  wikipediaUrl    String?                       @map("wikipedia_url")
+  websiteUrl      String?                       @map("website_url")
   createdAt       DateTime                      @default(now()) @map("created_at")
   embedding       Unsupported("vector(1536)")?
 

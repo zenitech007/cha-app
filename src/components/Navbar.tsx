@@ -33,10 +33,10 @@ export default function Navbar({ onNavClick, activeSection }: NavbarProps) {
             </div>
             <div className="hidden sm:block">
               <div className="text-amber-400 font-bold text-sm tracking-widest uppercase" style={{ fontFamily: "'Playfair Display', serif" }}>
-                Country Heritage
+                Universal Music
               </div>
               <div className="text-amber-600/70 text-xs tracking-[0.2em] uppercase -mt-0.5">
-                Alliance
+                Hub
               </div>
             </div>
           </button>
@@ -85,13 +85,17 @@ export default function Navbar({ onNavClick, activeSection }: NavbarProps) {
       </div>
 
       {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="md:hidden bg-stone-950 border-t border-amber-900/20 px-4 py-3 space-y-1">
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          menuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="bg-stone-950 border-t border-amber-900/20 px-4 py-3 space-y-1">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => { onNavClick(item.id); setMenuOpen(false); }}
-              className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 activeSection === item.id
                   ? "bg-amber-600/20 text-amber-400"
                   : "text-stone-400 hover:text-amber-300 hover:bg-stone-800"
@@ -100,8 +104,17 @@ export default function Navbar({ onNavClick, activeSection }: NavbarProps) {
               {item.label}
             </button>
           ))}
+          <button
+            onClick={() => { onNavClick("directory"); setMenuOpen(false); }}
+            className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-3 bg-amber-600 hover:bg-amber-500 text-stone-950 font-semibold text-sm rounded-lg transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z" />
+            </svg>
+            Search Artists
+          </button>
         </div>
-      )}
+      </div>
     </nav>
   );
 }

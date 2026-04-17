@@ -3,6 +3,9 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { generateEmbedding } from "@/lib/openai";
+import { searchSpotifyArtist, getArtistAlbums } from "@/lib/spotify";
+import { fetchLastFmBio } from "@/lib/lastfm";
+import { fetchMusicBrainzData } from "@/lib/musicbrainz";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -24,12 +27,13 @@ export async function createArtist(formData: FormData) {
   const name = (formData.get("name") as string)?.trim();
   if (!name) throw new Error("Artist name is required");
 
-  const bio = (formData.get("bio") as string)?.trim() || null;
-  const imageUrl = (formData.get("imageUrl") as string)?.trim() || null;
-  const officialWebsite =
+  // Manual overrides from form (user can still edit these)
+  const manualBio = (formData.get("bio") as string)?.trim() || null;
+  const manualImageUrl = (formData.get("imageUrl") as string)?.trim() || null;
+  const manualWebsite =
     (formData.get("officialWebsite") as string)?.trim() || null;
 
-  // Parse albums JSON if provided (from Spotify auto-fill)
+  // Parse albums JSON if provided (from auto-fill)
   const albumsRaw = (formData.get("albums") as string)?.trim() || null;
   let albumsData: {
     title: string;
@@ -40,7 +44,7 @@ export async function createArtist(formData: FormData) {
     try {
       albumsData = JSON.parse(albumsRaw);
     } catch {
-      // ignore malformed JSON, just skip albums
+      // ignore malformed JSON
     }
   }
 
@@ -50,19 +54,48 @@ export async function createArtist(formData: FormData) {
   const charityUrl =
     (formData.get("charityUrl") as string)?.trim() || null;
 
-  // Create the artist row first (without embedding — Unsupported columns
-  // can't be set via the normal Prisma client)
+  // ── Deep Data Pipeline ──────────────────────────────────
+  // Run Spotify, Last.fm, and MusicBrainz in parallel for speed
+  const [spotifyResult, lastfmResult, mbResult] = await Promise.all([
+    searchSpotifyArtist(name).catch(() => null),
+    fetchLastFmBio(name).catch(() => ({ bio: null })),
+    fetchMusicBrainzData(name).catch(() => ({
+      country: null,
+      wikipediaUrl: null,
+      officialWebsite: null,
+    })),
+  ]);
+
+  // Fetch albums from Spotify if we have a Spotify ID and no manual albums
+  let spotifyAlbums = albumsData;
+  if (spotifyAlbums.length === 0 && spotifyResult?.spotifyId) {
+    try {
+      spotifyAlbums = await getArtistAlbums(spotifyResult.spotifyId);
+    } catch {
+      // non-fatal
+    }
+  }
+
+  // Merge: form values take priority, APIs fill in the gaps
+  const finalBio = manualBio || lastfmResult.bio || null;
+  const finalImageUrl = manualImageUrl || spotifyResult?.imageUrl || null;
+  const finalWebsite = manualWebsite || mbResult.officialWebsite || null;
+
+  // ── Save to Database ────────────────────────────────────
   const artist = await prisma.artist.create({
     data: {
       slug: slugify(name),
       name,
-      bio,
-      imageUrl,
-      officialWebsite,
+      bio: finalBio,
+      imageUrl: finalImageUrl,
+      officialWebsite: finalWebsite,
+      originCountry: mbResult.country || null,
+      wikipediaUrl: mbResult.wikipediaUrl || null,
+      websiteUrl: mbResult.officialWebsite || null,
       albums:
-        albumsData.length > 0
+        spotifyAlbums.length > 0
           ? {
-              create: albumsData.map((a) => ({
+              create: spotifyAlbums.map((a) => ({
                 title: a.title,
                 releaseYear: a.releaseYear,
                 coverUrl: a.coverUrl,
@@ -81,7 +114,7 @@ export async function createArtist(formData: FormData) {
 
   // Generate and store the embedding via raw SQL
   try {
-    const embeddingText = [name, bio].filter(Boolean).join(" — ");
+    const embeddingText = [name, finalBio].filter(Boolean).join(" — ");
     const vector = await generateEmbedding(embeddingText);
     const vectorStr = `[${vector.join(",")}]`;
 
@@ -91,7 +124,6 @@ export async function createArtist(formData: FormData) {
       artist.id,
     );
   } catch {
-    // Non-fatal: artist is created, embedding just won't be available
     console.error("Failed to generate embedding for", name);
   }
 

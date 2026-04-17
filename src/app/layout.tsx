@@ -11,9 +11,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Country Heritage Alliance",
+  title: "Universal Music Hub",
   description:
-    "The authoritative reference database for country music artists, albums, tours, and charitable work.",
+    "The authoritative global reference database for music artists, albums, and discographies worldwide.",
 };
 
 export default function RootLayout({
@@ -31,9 +31,9 @@ export default function RootLayout({
               href="/" 
               className="shrink-0 tracking-tight transition-colors hover:text-(--color-accent)"
             >
-              <span className="text-lg font-semibold">CHA</span>
+              <span className="text-lg font-semibold">UM Hub</span>
               <span className="ml-2 hidden text-sm font-normal text-muted sm:inline">
-                Country Heritage Alliance
+                Universal Music Hub
               </span>
             </Link>
 
@@ -55,7 +55,7 @@ export default function RootLayout({
 
         <footer className="mt-auto border-t border-border bg-surface">
           <div className="mx-auto max-w-5xl px-6 py-8 text-center text-xs text-muted">
-            &copy; {new Date().getFullYear()} Country Heritage Alliance. All rights reserved.
+            &copy; {new Date().getFullYear()} Universal Music Hub. All rights reserved.
           </div>
         </footer>
       </body>

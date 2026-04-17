@@ -19,6 +19,8 @@ export default function NewArtistPage() {
   const [imageUrl, setImageUrl] = useState("");
   const [officialWebsite, setOfficialWebsite] = useState("");
   const [albums, setAlbums] = useState<SpotifyAlbum[]>([]);
+  const [originCountry, setOriginCountry] = useState("");
+  const [wikipediaUrl, setWikipediaUrl] = useState("");
   const [filled, setFilled] = useState(false);
 
   async function handleSpotifySearch() {
@@ -36,23 +38,33 @@ export default function NewArtistPage() {
 
     const data: SpotifyArtistData = result.data;
     setName(data.name);
-    setBio(data.genres);
+    // Prefer Last.fm bio, fall back to Spotify genres
+    setBio(data.bio || data.genres);
     setImageUrl(data.imageUrl ?? "");
     setAlbums(data.albums);
+    setOfficialWebsite(data.officialWebsite ?? "");
+    setOriginCountry(data.originCountry ?? "");
+    setWikipediaUrl(data.wikipediaUrl ?? "");
     setFilled(true);
   }
+
+  const sourceCount = [
+    filled ? "Spotify" : null,
+    bio && bio !== "" ? "Last.fm" : null,
+    originCountry || wikipediaUrl ? "MusicBrainz" : null,
+  ].filter(Boolean);
 
   return (
     <div className="max-w-2xl">
       <h1 className="text-2xl font-bold tracking-tight">Add Artist</h1>
       <p className="mt-1 text-sm text-muted">
-        Search Spotify to auto-fill, then review and save.
+        Search to auto-fill from Spotify, Last.fm &amp; MusicBrainz, then review and save.
       </p>
 
-      {/* ── Spotify Auto-Fill ── */}
+      {/* -- Deep Search Auto-Fill -- */}
       <div className="mt-8 rounded-lg border border-border bg-surface px-5 py-5">
         <p className="text-xs font-medium uppercase tracking-widest text-muted">
-          Spotify Auto-Fill
+          Deep Search Auto-Fill
         </p>
         <div className="mt-3 flex gap-3">
           <input
@@ -65,7 +77,7 @@ export default function NewArtistPage() {
                 handleSpotifySearch();
               }
             }}
-            placeholder="e.g. George Strait"
+            placeholder="e.g. Daft Punk, Taylor Swift, Hans Zimmer"
             className="h-10 flex-1 rounded-md border border-border bg-background px-3 text-sm placeholder:text-muted/60 focus:outline-none focus:ring-1 focus:ring-foreground/20"
           />
           <button
@@ -83,14 +95,19 @@ export default function NewArtistPage() {
         )}
 
         {filled && (
-          <p className="mt-3 text-sm text-green-700">
-            Found &ldquo;{name}&rdquo; with {albums.length} album
-            {albums.length !== 1 && "s"}. Review below and save.
-          </p>
+          <div className="mt-3">
+            <p className="text-sm text-green-700">
+              Found &ldquo;{name}&rdquo; with {albums.length} album
+              {albums.length !== 1 && "s"}.
+              {sourceCount.length > 0 && (
+                <> Sources: {sourceCount.join(", ")}.</>
+              )}
+            </p>
+          </div>
         )}
       </div>
 
-      {/* ── Main Form ── */}
+      {/* -- Main Form -- */}
       <form action={createArtist} className="mt-8 space-y-6">
         {/* Hidden albums JSON */}
         {albums.length > 0 && (
@@ -109,19 +126,19 @@ export default function NewArtistPage() {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. George Strait"
+            placeholder="e.g. Daft Punk, Taylor Swift, Hans Zimmer"
             className={inputClass}
           />
         </Field>
 
-        {/* Bio / Genres */}
-        <Field label="Biography / Genres">
+        {/* Bio */}
+        <Field label="Biography">
           <textarea
             name="bio"
-            rows={3}
+            rows={5}
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            placeholder="A brief biography or genre tags..."
+            placeholder="Rich biography auto-filled from Last.fm..."
             className={textareaClass}
           />
         </Field>
@@ -145,6 +162,18 @@ export default function NewArtistPage() {
           )}
         </Field>
 
+        {/* Origin Country */}
+        <Field label="Origin Country">
+          <input
+            name="originCountry"
+            type="text"
+            value={originCountry}
+            onChange={(e) => setOriginCountry(e.target.value)}
+            placeholder="e.g. US, GB, FR, JP (from MusicBrainz)"
+            className={inputClass}
+          />
+        </Field>
+
         {/* Official Website */}
         <Field label="Official Website">
           <input
@@ -157,7 +186,19 @@ export default function NewArtistPage() {
           />
         </Field>
 
-        {/* ── Charity & Causes ── */}
+        {/* Wikipedia URL */}
+        <Field label="Wikipedia URL">
+          <input
+            name="wikipediaUrl"
+            type="url"
+            value={wikipediaUrl}
+            onChange={(e) => setWikipediaUrl(e.target.value)}
+            placeholder="https://en.wikipedia.org/wiki/..."
+            className={inputClass}
+          />
+        </Field>
+
+        {/* -- Charity & Causes -- */}
         <div className="space-y-4 rounded-lg border border-border p-5">
           <p className="text-xs font-medium uppercase tracking-widest text-muted">
             Charity &amp; Causes
@@ -166,7 +207,7 @@ export default function NewArtistPage() {
             <input
               name="charityName"
               type="text"
-              placeholder="e.g. Homes For Our Troops"
+              placeholder="e.g. UNICEF, Red Cross, charity: water"
               className={inputClass}
             />
           </Field>
@@ -233,7 +274,7 @@ export default function NewArtistPage() {
   );
 }
 
-// ── Shared styles & helpers ──
+// -- Shared styles & helpers --
 
 const inputClass =
   "mt-1.5 h-10 w-full rounded-md border border-border bg-background px-3 text-sm placeholder:text-muted/60 focus:outline-none focus:ring-1 focus:ring-foreground/20";

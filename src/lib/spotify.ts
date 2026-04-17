@@ -87,7 +87,7 @@ export async function getArtistAlbums(
   spotifyArtistId: string,
 ): Promise<SpotifyAlbum[]> {
   const data = await spotifyFetch(
-    `/artists/${spotifyArtistId}/albums?include_groups=album&limit=50&market=US`,
+    `/artists/${spotifyArtistId}/albums?include_groups=album&limit=50`,
   );
 
   const items: any[] = data?.items ?? [];

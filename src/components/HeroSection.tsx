@@ -67,18 +67,18 @@ export default function HeroSection({
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-600/40 bg-amber-900/20 backdrop-blur-sm mb-8">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
           <span className="text-amber-400 text-xs font-semibold tracking-widest uppercase">
-            The Premier Country Music Reference
+            The Premier Global Music Reference
           </span>
         </div>
 
         {/* Main Headline */}
         <h1
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight"
+          className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
-          <span className="block">Country</span>
-          <span className="block text-amber-400 italic">Heritage</span>
-          <span className="block">Alliance</span>
+          <span className="block">Universal</span>
+          <span className="block text-amber-400 italic">Music</span>
+          <span className="block">Hub</span>
         </h1>
 
         {/* Divider */}
@@ -94,14 +94,13 @@ export default function HeroSection({
           <div className="h-px w-16 bg-linear-to-l from-transparent to-amber-600/60" />
         </div>
 
-        <p className="text-stone-300 text-lg sm:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
-          The definitive reference database and directory celebrating the
-          legends, icons, and rising stars of country music heritage — from
-          classic honky tonk to modern Americana.
+        <p className="text-stone-300 text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed">
+          The definitive global reference for music—artists, discographies,
+          and global tours spanning every genre and era.
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-10 sm:mb-16 px-2 sm:px-0">
           <button
             onClick={onExplore}
             className="group px-8 py-4 bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold rounded-full transition-all duration-300 shadow-xl shadow-amber-900/40 hover:shadow-amber-700/50 hover:scale-105 flex items-center justify-center gap-2"
@@ -146,9 +145,9 @@ export default function HeroSection({
         <div className="flex flex-wrap justify-center gap-8 sm:gap-16">
           {[
             { value: `${totalArtists}+`, label: "Artists Listed" },
-            { value: "8", label: "Genres Covered" },
-            { value: "60+", label: "Years of History" },
-            { value: "5", label: "Historic Eras" },
+            { value: "9", label: "Genres Covered" },
+            { value: "100+", label: "Years of History" },
+            { value: "7", label: "Musical Eras" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div
