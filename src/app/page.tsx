@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getArtistGenresBatch } from "@/lib/spotify";
 import HomeClient from "@/components/home-client";
 
 const premiumCategories = [
@@ -33,10 +34,27 @@ export default async function HomePage() {
     }),
   ]);
 
-  // Map artists into the 5 premium buckets
+  // Fetch live genres from Spotify for all artists in parallel.
+  // Falls back to the DB genres string if Spotify returns nothing.
+  const artistNames = allArtists.map((a) => a.name);
+  const spotifyGenresMap = await getArtistGenresBatch(artistNames).catch(
+    () => new Map<string, string[]>(),
+  );
+
+  // Enrich each artist with live Spotify genres (or fall back to DB value)
+  const enrichedArtists = allArtists.map((artist) => {
+    const liveGenres = spotifyGenresMap.get(artist.name.toLowerCase());
+    const genreString =
+      liveGenres && liveGenres.length > 0
+        ? liveGenres.join(", ")
+        : artist.genres ?? "";
+    return { ...artist, genres: genreString };
+  });
+
+  // Map artists into the 5 premium buckets using live genre data
   const categoryBlocks = premiumCategories
     .map(({ title, match }) => {
-      const matched = allArtists.filter((a) => {
+      const matched = enrichedArtists.filter((a) => {
         if (!a.genres) return false;
         return a.genres.split(",").some((g) => match.test(g.trim()));
       });

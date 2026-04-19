@@ -15,6 +15,7 @@ import { redirect } from "next/navigation";
 const createArtistSchema = z.object({
   name: z.string().min(1, "Artist name is required").max(200),
   bio: z.string().max(10000).optional().nullable(),
+  genres: z.string().max(500).optional().or(z.literal("")),
   imageUrl: z.string().url("Invalid image URL").optional().or(z.literal("")),
   officialWebsite: z.string().url("Invalid website URL").optional().or(z.literal("")),
   originCountry: z.string().max(10).optional().or(z.literal("")),
@@ -43,6 +44,7 @@ export async function createArtist(formData: FormData) {
   const raw = {
     name: (formData.get("name") as string)?.trim() ?? "",
     bio: (formData.get("bio") as string)?.trim() ?? "",
+    genres: (formData.get("genres") as string)?.trim() ?? "",
     imageUrl: (formData.get("imageUrl") as string)?.trim() ?? "",
     officialWebsite: (formData.get("officialWebsite") as string)?.trim() ?? "",
     originCountry: (formData.get("originCountry") as string)?.trim() ?? "",
@@ -107,9 +109,9 @@ export async function createArtist(formData: FormData) {
   const finalBio = manualBio || lastfmResult.bio || null;
   const finalImageUrl = manualImageUrl || spotifyResult?.imageUrl || null;
   const finalWebsite = manualWebsite || mbResult.officialWebsite || null;
-  const finalGenres = spotifyResult?.genres?.length
-    ? spotifyResult.genres.join(", ")
-    : null;
+  const finalGenres =
+    parsed.data.genres ||
+    (spotifyResult?.genres?.length ? spotifyResult.genres.join(", ") : null);
 
   // ── Save to Database ────────────────────────────────────
   const artist = await prisma.artist.create({

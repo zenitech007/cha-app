@@ -164,6 +164,31 @@ export async function getArtistTopTracks(
   }
 }
 
+/**
+ * Fetches genres for a batch of artists from Spotify in parallel.
+ * Returns a Map of artist name (lowercased) → genres array.
+ * Falls back to an empty array for any artist not found or on error.
+ */
+export async function getArtistGenresBatch(
+  artistNames: string[],
+): Promise<Map<string, string[]>> {
+  const results = await Promise.allSettled(
+    artistNames.map((name) => searchSpotifyArtist(name)),
+  );
+
+  const map = new Map<string, string[]>();
+  artistNames.forEach((name, i) => {
+    const result = results[i];
+    if (result.status === "fulfilled" && result.value) {
+      map.set(name.toLowerCase(), result.value.genres);
+    } else {
+      map.set(name.toLowerCase(), []);
+    }
+  });
+
+  return map;
+}
+
 export async function getRelatedArtists(
   spotifyArtistId: string,
 ): Promise<string[]> {

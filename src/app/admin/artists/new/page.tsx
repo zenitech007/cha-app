@@ -16,6 +16,7 @@ export default function NewArtistPage() {
   // Form fields (editable after auto-fill)
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
+  const [genres, setGenres] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [officialWebsite, setOfficialWebsite] = useState("");
   const [albums, setAlbums] = useState<SpotifyAlbum[]>([]);
@@ -39,6 +40,7 @@ export default function NewArtistPage() {
     const data: SpotifyArtistData = result.data;
     setName(data.name);
     setBio(data.bio || data.genres);
+    setGenres(data.genres);
     setImageUrl(data.imageUrl ?? "");
     setAlbums(data.albums);
     setOfficialWebsite(data.officialWebsite ?? "");
@@ -120,6 +122,11 @@ export default function NewArtistPage() {
             name="albums"
             value={JSON.stringify(albums)}
           />
+        )}
+
+        {/* Hidden genres from Spotify */}
+        {genres && (
+          <input type="hidden" name="genres" value={genres} />
         )}
 
         {/* Name */}

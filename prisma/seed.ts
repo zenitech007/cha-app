@@ -15,6 +15,7 @@ const artists = [
   {
     slug: "daft-punk",
     name: "Daft Punk",
+    genres: "electronic, house, dance, edm",
     bio: "Daft Punk was a French electronic music duo formed in 1993 by Thomas Bangalter and Guy-Manuel de Homem-Christo. Known for their iconic robot helmets, visual presentation, and genre-defining contributions to house, synth-pop, and disco, the duo became one of the most influential acts in modern music history. Their fusion of electronic sounds with funk, disco, and rock redefined the boundaries of dance music across four studio albums. Daft Punk disbanded in February 2021 after nearly three decades together.",
     imageUrl: "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=800&q=80",
     officialWebsite: "https://daftpunk.com",
@@ -37,6 +38,7 @@ const artists = [
   {
     slug: "the-beatles",
     name: "The Beatles",
+    genres: "rock, classic rock, alternative",
     bio: "The Beatles were an English rock band formed in Liverpool in 1960, comprising John Lennon, Paul McCartney, George Harrison, and Ringo Starr. They are regarded as the most influential band of all time and were integral to the development of 1960s counterculture and the recognition of popular music as an art form. Rooted in skiffle, beat, and 1950s rock 'n' roll, their sound incorporated elements of classical music, psychedelia, and Indian music in innovative ways. They hold the record for most number-one albums on the UK Albums Chart and are the best-selling music act of all time.",
     imageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&q=80",
     officialWebsite: "https://www.thebeatles.com",
@@ -62,6 +64,7 @@ const artists = [
   {
     slug: "hans-zimmer",
     name: "Hans Zimmer",
+    genres: "classical, soundtrack, score, orchestra",
     bio: "Hans Florian Zimmer is a German-born film score composer and music producer. He has composed music for over 150 films, including award-winning scores for The Lion King, Gladiator, The Dark Knight trilogy, Inception, Interstellar, and Dune. Zimmer pioneered the integration of electronic music with traditional orchestral arrangements, creating a signature sound that has defined modern cinema. He has received two Academy Awards, four Grammy Awards, and was appointed a Commander of the Order of the British Empire (CBE) in 2024.",
     imageUrl: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800&q=80",
     officialWebsite: "https://hanszimmer.com",
@@ -86,6 +89,7 @@ const artists = [
   {
     slug: "fela-kuti",
     name: "Fela Kuti",
+    genres: "afro, afrobeat, global, world",
     bio: "Fela Anikulapo Kuti was a Nigerian multi-instrumentalist, bandleader, composer, political activist, and Pan-Africanist who pioneered Afrobeat, a genre blending West African traditional music with American funk and jazz. Performing with his band Africa '70 and later Egypt '80, Fela used his music as a weapon against Nigeria's corrupt military government, enduring beatings, imprisonment, and the destruction of his commune. His fearless artistry and activism made him one of Africa's most iconic and internationally recognized musicians, influencing countless artists worldwide across genres from hip-hop to electronic music.",
     imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80",
     officialWebsite: null,
@@ -122,6 +126,7 @@ async function main() {
         slug: data.slug,
         name: data.name,
         bio: data.bio,
+        genres: data.genres,
         imageUrl: data.imageUrl,
         originCountry: data.originCountry,
         wikipediaUrl: data.wikipediaUrl,
