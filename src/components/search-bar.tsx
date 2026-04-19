@@ -52,7 +52,7 @@ export function SearchBar() {
         defaultValue={currentQuery}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        className="h-9 w-44 rounded-md border border-border bg-surface px-3 text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-1 focus:ring-foreground/20 sm:w-56"
+        className="h-9 w-44 rounded-md border border-stone-700 bg-stone-800 px-3 text-sm text-stone-100 placeholder:text-stone-500 focus:outline-none focus:ring-1 focus:ring-amber-600/40 focus:border-amber-600/60 sm:w-56"
       />
     </div>
   );

@@ -41,10 +41,9 @@ async function spotifyFetch(path: string) {
   });
 
   if (!res.ok) {
-    // THIS IS THE NEW DEBUG CODE
     const errorText = await res.text();
-    console.error("🔴 SPOTIFY HIDDEN ERROR:", errorText);
-    throw new Error(`Spotify API error: ${res.status} on ${path}. Check VS Code terminal!`);
+    console.warn(`Spotify API ${res.status} on ${path}:`, errorText);
+    throw new Error(`Spotify API error: ${res.status} on ${path}`);
   }
 
   return res.json();
@@ -77,6 +76,28 @@ export async function searchSpotifyArtist(
   };
 }
 
+export async function searchSpotifyArtists(
+  query: string,
+  limit = 10,
+): Promise<SpotifyArtist[]> {
+  try {
+    const data = await spotifyFetch(
+      `/search?type=artist&limit=${limit}&q=${encodeURIComponent(query)}`,
+    );
+
+    const items: any[] = data?.artists?.items ?? [];
+
+    return items.map((artist) => ({
+      spotifyId: artist.id,
+      name: artist.name,
+      genres: artist.genres ?? [],
+      imageUrl: artist.images?.[0]?.url ?? null,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export interface SpotifyAlbum {
   title: string;
   releaseYear: number;
@@ -86,29 +107,61 @@ export interface SpotifyAlbum {
 export async function getArtistAlbums(
   spotifyArtistId: string,
 ): Promise<SpotifyAlbum[]> {
-  const data = await spotifyFetch(
-    `/artists/${spotifyArtistId}/albums?include_groups=album&limit=50`,
-  );
+  try {
+    const data = await spotifyFetch(
+      `/artists/${spotifyArtistId}/albums?include_groups=album&limit=20`,
+    );
 
-  const items: any[] = data?.items ?? [];
+    const items: any[] = data?.items ?? [];
 
-  // Deduplicate by title (Spotify often has deluxe + standard editions)
-  const seen = new Set<string>();
-  const albums: SpotifyAlbum[] = [];
+    // Deduplicate by title (Spotify often has deluxe + standard editions)
+    const seen = new Set<string>();
+    const albums: SpotifyAlbum[] = [];
 
-  for (const item of items) {
-    const normalised = item.name.toLowerCase();
-    if (seen.has(normalised)) continue;
-    seen.add(normalised);
+    for (const item of items) {
+      const normalised = item.name.toLowerCase();
+      if (seen.has(normalised)) continue;
+      seen.add(normalised);
 
-    albums.push({
-      title: item.name,
-      releaseYear: parseInt(item.release_date?.slice(0, 4), 10) || 0,
-      coverUrl: item.images?.[0]?.url ?? null,
-    });
+      albums.push({
+        title: item.name,
+        releaseYear: parseInt(item.release_date?.slice(0, 4), 10) || 0,
+        coverUrl: item.images?.[0]?.url ?? null,
+      });
+    }
+
+    return albums.sort((a, b) => b.releaseYear - a.releaseYear);
+  } catch {
+    return [];
   }
+}
 
-  return albums.sort((a, b) => b.releaseYear - a.releaseYear);
+export interface SpotifyTopTrack {
+  name: string;
+  previewUrl: string | null;
+  albumName: string;
+  albumCoverUrl: string | null;
+}
+
+export async function getArtistTopTracks(
+  spotifyArtistId: string,
+): Promise<SpotifyTopTrack[]> {
+  try {
+    const data = await spotifyFetch(
+      `/artists/${spotifyArtistId}/top-tracks?market=US`,
+    );
+
+    const tracks: any[] = data?.tracks ?? [];
+
+    return tracks.slice(0, 5).map((track) => ({
+      name: track.name,
+      previewUrl: track.preview_url ?? null,
+      albumName: track.album?.name ?? "",
+      albumCoverUrl: track.album?.images?.[0]?.url ?? null,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function getRelatedArtists(

@@ -1,5 +1,6 @@
 "use server";
 
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { generateEmbedding } from "@/lib/openai";
@@ -8,6 +9,20 @@ import { fetchLastFmBio } from "@/lib/lastfm";
 import { fetchMusicBrainzData } from "@/lib/musicbrainz";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
+// ── Validation Schemas ────────────────────────────────────
+
+const createArtistSchema = z.object({
+  name: z.string().min(1, "Artist name is required").max(200),
+  bio: z.string().max(10000).optional().nullable(),
+  imageUrl: z.string().url("Invalid image URL").optional().or(z.literal("")),
+  officialWebsite: z.string().url("Invalid website URL").optional().or(z.literal("")),
+  originCountry: z.string().max(10).optional().or(z.literal("")),
+  wikipediaUrl: z.string().url("Invalid Wikipedia URL").optional().or(z.literal("")),
+  charityName: z.string().max(200).optional().or(z.literal("")),
+  charityUrl: z.string().url("Invalid charity URL").optional().or(z.literal("")),
+  albums: z.string().optional().or(z.literal("")),
+});
 
 async function requireAdmin() {
   const session = await auth();
@@ -24,35 +39,47 @@ function slugify(name: string): string {
 export async function createArtist(formData: FormData) {
   await requireAdmin();
 
-  const name = (formData.get("name") as string)?.trim();
-  if (!name) throw new Error("Artist name is required");
+  // ── Validate form input ─────────────────────────────────
+  const raw = {
+    name: (formData.get("name") as string)?.trim() ?? "",
+    bio: (formData.get("bio") as string)?.trim() ?? "",
+    imageUrl: (formData.get("imageUrl") as string)?.trim() ?? "",
+    officialWebsite: (formData.get("officialWebsite") as string)?.trim() ?? "",
+    originCountry: (formData.get("originCountry") as string)?.trim() ?? "",
+    wikipediaUrl: (formData.get("wikipediaUrl") as string)?.trim() ?? "",
+    charityName: (formData.get("charityName") as string)?.trim() ?? "",
+    charityUrl: (formData.get("charityUrl") as string)?.trim() ?? "",
+    albums: (formData.get("albums") as string)?.trim() ?? "",
+  };
 
-  // Manual overrides from form (user can still edit these)
-  const manualBio = (formData.get("bio") as string)?.trim() || null;
-  const manualImageUrl = (formData.get("imageUrl") as string)?.trim() || null;
-  const manualWebsite =
-    (formData.get("officialWebsite") as string)?.trim() || null;
+  const parsed = createArtistSchema.safeParse(raw);
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0];
+    throw new Error(`Validation failed: ${firstIssue.path.join(".")} — ${firstIssue.message}`);
+  }
+
+  const { name } = parsed.data;
+  const manualBio = parsed.data.bio || null;
+  const manualImageUrl = parsed.data.imageUrl || null;
+  const manualWebsite = parsed.data.officialWebsite || null;
 
   // Parse albums JSON if provided (from auto-fill)
-  const albumsRaw = (formData.get("albums") as string)?.trim() || null;
   let albumsData: {
     title: string;
     releaseYear: number;
     coverUrl: string | null;
   }[] = [];
-  if (albumsRaw) {
+  if (parsed.data.albums) {
     try {
-      albumsData = JSON.parse(albumsRaw);
+      albumsData = JSON.parse(parsed.data.albums);
     } catch {
       // ignore malformed JSON
     }
   }
 
   // Parse charity fields
-  const charityName =
-    (formData.get("charityName") as string)?.trim() || null;
-  const charityUrl =
-    (formData.get("charityUrl") as string)?.trim() || null;
+  const charityName = parsed.data.charityName || null;
+  const charityUrl = parsed.data.charityUrl || null;
 
   // ── Deep Data Pipeline ──────────────────────────────────
   // Run Spotify, Last.fm, and MusicBrainz in parallel for speed
@@ -80,6 +107,9 @@ export async function createArtist(formData: FormData) {
   const finalBio = manualBio || lastfmResult.bio || null;
   const finalImageUrl = manualImageUrl || spotifyResult?.imageUrl || null;
   const finalWebsite = manualWebsite || mbResult.officialWebsite || null;
+  const finalGenres = spotifyResult?.genres?.length
+    ? spotifyResult.genres.join(", ")
+    : null;
 
   // ── Save to Database ────────────────────────────────────
   const artist = await prisma.artist.create({
@@ -92,6 +122,7 @@ export async function createArtist(formData: FormData) {
       originCountry: mbResult.country || null,
       wikipediaUrl: mbResult.wikipediaUrl || null,
       websiteUrl: mbResult.officialWebsite || null,
+      genres: finalGenres,
       albums:
         spotifyAlbums.length > 0
           ? {
@@ -146,5 +177,23 @@ export async function deleteArtist(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/artists");
   revalidatePath("/search");
+  revalidatePath("/admin");
+}
+
+export async function toggleFeaturedArtist(formData: FormData) {
+  await requireAdmin();
+
+  const id = formData.get("id") as string;
+  if (!id) throw new Error("Artist ID is required");
+
+  const artist = await prisma.artist.findUniqueOrThrow({ where: { id } });
+
+  await prisma.artist.update({
+    where: { id },
+    data: { isFeatured: !artist.isFeatured },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/artists");
   revalidatePath("/admin");
 }

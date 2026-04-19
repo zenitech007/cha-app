@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useState, Suspense } from "react";
+import SiteShell from "@/components/SiteShell";
 
 function LoginForm() {
   const router = useRouter();
@@ -38,13 +40,13 @@ function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-5">
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-md border border-red-800/50 bg-red-900/20 px-4 py-3 text-sm text-red-400">
           {error}
         </div>
       )}
 
       <fieldset>
-        <label htmlFor="email" className="block text-sm font-medium">
+        <label htmlFor="email" className="block text-sm font-medium text-stone-300">
           Email
         </label>
         <input
@@ -53,12 +55,12 @@ function LoginForm() {
           type="email"
           required
           autoComplete="email"
-          className="mt-1.5 h-10 w-full rounded-md border border-border bg-background px-3 text-sm placeholder:text-muted/60 focus:outline-none focus:ring-1 focus:ring-foreground/20"
+          className="mt-1.5 h-10 w-full rounded-md border border-stone-700 bg-stone-800 px-3 text-sm text-stone-100 placeholder:text-stone-500 focus:outline-none focus:ring-1 focus:ring-amber-600/40 focus:border-amber-600/60"
         />
       </fieldset>
 
       <fieldset>
-        <label htmlFor="password" className="block text-sm font-medium">
+        <label htmlFor="password" className="block text-sm font-medium text-stone-300">
           Password
         </label>
         <input
@@ -67,14 +69,14 @@ function LoginForm() {
           type="password"
           required
           autoComplete="current-password"
-          className="mt-1.5 h-10 w-full rounded-md border border-border bg-background px-3 text-sm placeholder:text-muted/60 focus:outline-none focus:ring-1 focus:ring-foreground/20"
+          className="mt-1.5 h-10 w-full rounded-md border border-stone-700 bg-stone-800 px-3 text-sm text-stone-100 placeholder:text-stone-500 focus:outline-none focus:ring-1 focus:ring-amber-600/40 focus:border-amber-600/60"
         />
       </fieldset>
 
       <button
         type="submit"
         disabled={loading}
-        className="h-10 w-full rounded-md bg-foreground text-sm font-medium text-background transition-opacity hover:opacity-80 disabled:opacity-50"
+        className="h-10 w-full rounded-full bg-amber-600 text-sm font-semibold text-stone-950 transition-colors hover:bg-amber-500 disabled:opacity-50"
       >
         {loading ? "Signing in\u2026" : "Sign In"}
       </button>
@@ -84,26 +86,38 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="flex flex-1 items-center justify-center px-6 py-16">
-      <div className="w-full max-w-sm">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight">CHA Admin</h1>
-          <p className="mt-2 text-sm text-muted">
-            Sign in to manage the database.
+    <SiteShell>
+      <div className="flex flex-1 items-center justify-center px-6 py-20">
+        <div className="w-full max-w-sm">
+          <div className="text-center">
+            <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-linear-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg shadow-amber-900/40">
+              <svg className="w-7 h-7 text-stone-950" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 18V5l12-2v13M9 18c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-2c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"/>
+              </svg>
+            </div>
+            <h1
+              className="text-2xl font-bold tracking-tight text-white"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              Admin Login
+            </h1>
+            <p className="mt-2 text-sm text-stone-500">
+              Sign in to manage the database.
+            </p>
+          </div>
+
+          <Suspense>
+            <LoginForm />
+          </Suspense>
+
+          <p className="mt-8 text-center text-xs text-stone-600">
+            &larr;{" "}
+            <Link href="/" className="underline hover:text-amber-400 transition-colors">
+              Back to site
+            </Link>
           </p>
         </div>
-
-        <Suspense>
-          <LoginForm />
-        </Suspense>
-
-        <p className="mt-8 text-center text-xs text-muted">
-          &larr;{" "}
-          <a href="/" className="underline hover:text-foreground">
-            Back to site
-          </a>
-        </p>
       </div>
-    </div>
+    </SiteShell>
   );
 }

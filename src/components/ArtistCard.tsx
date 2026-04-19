@@ -1,16 +1,16 @@
 "use client";
 
+import Link from "next/link";
+
 export default function ArtistCard({
   artist,
-  onClick,
 }: {
   artist: any;
-  onClick: (a: any) => void;
 }) {
   return (
-    <button
-      onClick={() => onClick(artist)}
-      className="group relative bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden text-left hover:border-amber-700/50 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-900/20 hover:-translate-y-1 w-full"
+    <Link
+      href={`/artists/${artist.slug}`}
+      className="group relative bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden text-left hover:border-amber-700/50 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-900/20 hover:-translate-y-1 w-full block"
     >
       <div className="relative h-56 overflow-hidden">
         {artist.imageUrl ? (
@@ -57,6 +57,6 @@ export default function ArtistCard({
           </svg>
         </div>
       </div>
-    </button>
+    </Link>
   );
 }

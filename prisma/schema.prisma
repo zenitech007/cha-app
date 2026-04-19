@@ -17,6 +17,8 @@ model Artist {
   originCountry   String?                       @map("origin_country")
   wikipediaUrl    String?                       @map("wikipedia_url")
   websiteUrl      String?                       @map("website_url")
+  isFeatured      Boolean                       @default(false) @map("is_featured")
+  genres          String?                       @map("genres")
   createdAt       DateTime                      @default(now()) @map("created_at")
   embedding       Unsupported("vector(1536)")?
 

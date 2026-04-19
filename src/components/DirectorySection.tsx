@@ -5,10 +5,9 @@ import ArtistCard from "./ArtistCard";
 
 interface DirectorySectionProps {
   artists: any[];
-  onArtistClick: (artist: any) => void;
 }
 
-export default function DirectorySection({ artists, onArtistClick }: DirectorySectionProps) {
+export default function DirectorySection({ artists }: DirectorySectionProps) {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "newest">("name");
 
@@ -120,7 +119,7 @@ export default function DirectorySection({ artists, onArtistClick }: DirectorySe
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
             {filtered.map((artist) => (
-              <ArtistCard key={artist.id} artist={artist} onClick={onArtistClick} />
+              <ArtistCard key={artist.id} artist={artist} />
             ))}
           </div>
         ) : (

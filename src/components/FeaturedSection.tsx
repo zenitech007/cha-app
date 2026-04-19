@@ -1,11 +1,11 @@
 "use client";
 
+import Link from "next/link";
+
 export default function FeaturedSection({
   artists,
-  onArtistClick,
 }: {
   artists: any[];
-  onArtistClick: (a: any) => void;
 }) {
   // Show the first artist as "main featured", the next few as secondary
   const [main, ...rest] = artists.slice(0, 4);
@@ -41,9 +41,9 @@ export default function FeaturedSection({
 
         {/* Main Featured */}
         {main && (
-          <button
-            onClick={() => onArtistClick(main)}
-            className="group w-full mb-6 relative overflow-hidden rounded-3xl bg-stone-900 border border-stone-800 hover:border-amber-700/40 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-900/20"
+          <Link
+            href={`/artists/${main.slug}`}
+            className="group block w-full mb-6 relative overflow-hidden rounded-3xl bg-stone-900 border border-stone-800 hover:border-amber-700/40 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-900/20"
           >
             <div className="flex flex-col md:flex-row">
               <div className="md:w-2/5 relative h-72 md:h-auto overflow-hidden">
@@ -98,16 +98,16 @@ export default function FeaturedSection({
                 </div>
               </div>
             </div>
-          </button>
+          </Link>
         )}
 
         {/* Secondary Featured */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {rest.map((artist) => (
-            <button
+            <Link
               key={artist.id}
-              onClick={() => onArtistClick(artist)}
-              className="group relative overflow-hidden rounded-2xl bg-stone-900 border border-stone-800 hover:border-amber-700/40 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/20 hover:-translate-y-1 text-left"
+              href={`/artists/${artist.slug}`}
+              className="group relative overflow-hidden rounded-2xl bg-stone-900 border border-stone-800 hover:border-amber-700/40 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/20 hover:-translate-y-1 text-left block"
             >
               <div className="relative h-48 overflow-hidden">
                 {artist.imageUrl ? (
@@ -138,7 +138,7 @@ export default function FeaturedSection({
                   </p>
                 )}
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       </div>
