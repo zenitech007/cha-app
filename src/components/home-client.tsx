@@ -1,30 +1,43 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Link from "next/link";
 import Navbar from "./Navbar";
 import HeroSection from "./HeroSection";
+import TrendingSection from "./TrendingSection";
+import CategoryCard from "./CategoryCard";
+import SectionHeader from "./SectionHeader";
 import FeaturedSection from "./FeaturedSection";
+import AlbumsSection from "./AlbumsSection";
+import RecentlyAddedSection from "./RecentlyAddedSection";
+import RegionalShowcase from "./RegionalShowcase";
 import DirectorySection from "./DirectorySection";
 import AboutSection from "./AboutSection";
 import Footer from "./Footer";
-import RegionalShowcase from "./RegionalShowcase";
+import MusicPlayer from "./MusicPlayer";
 
 interface CategoryBlock {
   title: string;
   artists: any[];
+  icon: string;
+  gradient: string;
 }
 
 interface HomeClientProps {
   artists: any[];
   hallOfFame?: any[];
   categoryBlocks?: CategoryBlock[];
+  recentlyAdded?: any[];
+  topAlbums?: any[];
+  trendingArtists?: any[];
 }
 
 export default function HomeClient({
   artists,
   hallOfFame = [],
   categoryBlocks = [],
+  recentlyAdded = [],
+  topAlbums = [],
+  trendingArtists = [],
 }: HomeClientProps) {
   const [activeSection, setActiveSection] = useState("home");
 
@@ -48,7 +61,7 @@ export default function HomeClient({
   };
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100">
+    <div className="min-h-screen bg-stone-950 text-stone-100 pb-20">
       <Navbar onNavClick={handleNavClick} activeSection={activeSection} />
 
       {/* Hero */}
@@ -60,70 +73,49 @@ export default function HomeClient({
         />
       </div>
 
-      {/* Hall of Fame — admin-curated featured artists */}
-      {hallOfFame.length > 0 && (
-        <div ref={featuredRef}>
-          <FeaturedSection artists={hallOfFame} />
-        </div>
+      {/* Trending Now */}
+      {trendingArtists.length > 0 && (
+        <TrendingSection artists={trendingArtists} />
       )}
 
-      {/* Fallback: if no Hall of Fame, show first 4 artists as featured */}
-      {hallOfFame.length === 0 && (
-        <div ref={featuredRef}>
-          <FeaturedSection artists={artists} />
-        </div>
+      {/* Browse by Categories */}
+      {categoryBlocks.length > 0 && (
+        <section className="bg-stone-950 py-10 sm:py-14 px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto">
+            <SectionHeader badge="Explore" title="Browse by Category" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              {categoryBlocks.map(({ title, artists: catArtists, icon, gradient }) => (
+                <CategoryCard
+                  key={title}
+                  title={title}
+                  icon={icon}
+                  artistCount={catArtists.length}
+                  gradient={gradient}
+                  href={`/search?q=${encodeURIComponent(title)}`}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Hall of Fame — admin-curated featured artists */}
+      <div ref={featuredRef}>
+        <FeaturedSection artists={hallOfFame.length > 0 ? hallOfFame : artists} />
+      </div>
+
+      {/* Top Albums */}
+      {topAlbums.length > 0 && (
+        <AlbumsSection albums={topAlbums} />
+      )}
+
+      {/* Recently Added */}
+      {recentlyAdded.length > 0 && (
+        <RecentlyAddedSection artists={recentlyAdded} />
       )}
 
       {/* Regional Showcase — timezone-aware */}
       <RegionalShowcase />
-
-      {/* Netflix-Style Genre Category Rows */}
-      {categoryBlocks.length > 0 && (
-        <section className="bg-stone-950 py-12 sm:py-16 px-4 sm:px-6">
-          <div className="max-w-7xl mx-auto space-y-14">
-            {categoryBlocks.map(({ title, artists: genreArtists }) => (
-              <div key={title}>
-                <h3
-                  className="text-xl sm:text-2xl font-bold text-white mb-6"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
-                >
-                  {title}
-                </h3>
-
-                <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-6 snap-x snap-mandatory hide-scrollbar">
-                  {genreArtists.map((artist) => (
-                    <Link
-                      key={artist.id}
-                      href={`/artists/${artist.slug}`}
-                      className="group w-40 sm:w-48 shrink-0 snap-start relative aspect-[4/5] overflow-hidden rounded-xl border border-stone-800 hover:border-amber-700/40 transition-all duration-300"
-                    >
-                      {artist.imageUrl ? (
-                        <img
-                          src={artist.imageUrl}
-                          alt={artist.name}
-                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-stone-800 flex items-center justify-center">
-                          <span className="text-4xl font-bold text-stone-600">
-                            {artist.name.charAt(0)}
-                          </span>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-900/80 to-transparent opacity-80" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h4 className="font-bold text-white text-sm leading-tight truncate group-hover:text-amber-400 transition-colors">
-                          {artist.name}
-                        </h4>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Decorative Divider */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -147,6 +139,9 @@ export default function HomeClient({
       </div>
 
       <Footer />
+
+      {/* Sticky Music Player */}
+      <MusicPlayer />
     </div>
   );
 }
