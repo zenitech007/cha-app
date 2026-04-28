@@ -21,10 +21,10 @@ export default function CategoryCard({
       className="group relative overflow-hidden rounded-2xl border border-stone-800 hover:border-amber-700/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-900/20 block"
     >
       {/* Gradient background */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-60 group-hover:opacity-80 transition-opacity duration-300`} />
+      <div className={`absolute inset-0 bg-linear-to-br ${gradient} opacity-60 group-hover:opacity-80 transition-opacity duration-300`} />
 
       {/* Glass surface */}
-      <div className="relative bg-stone-900/60 backdrop-blur-sm p-6 sm:p-8 flex flex-col items-start gap-3 min-h-[140px]">
+      <div className="relative bg-stone-900/60 backdrop-blur-sm p-6 sm:p-8 flex flex-col items-start gap-3 min-h-35">
         {/* Icon */}
         <span className="text-3xl sm:text-4xl group-hover:scale-110 transition-transform duration-300 inline-block">
           {icon}

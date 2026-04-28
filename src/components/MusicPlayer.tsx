@@ -11,14 +11,14 @@ export default function MusicPlayer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Progress bar */}
         <div className="h-1 -mt-0.5 bg-stone-800 rounded-full overflow-hidden">
-          <div className="h-full w-[35%] bg-gradient-to-r from-amber-600 to-amber-500 rounded-full" />
+          <div className="h-full w-[35%] bg-linear-to-r from-amber-600 to-amber-500 rounded-full" />
         </div>
 
         <div className="flex items-center justify-between h-16 sm:h-18 gap-4">
           {/* Left — Currently Playing */}
           <div className="flex items-center gap-3 min-w-0 flex-1 sm:flex-initial sm:w-1/4">
-            <div className="w-10 h-10 rounded-lg bg-stone-800 flex-shrink-0 overflow-hidden">
-              <div className="w-full h-full bg-gradient-to-br from-amber-700 to-amber-900 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-stone-800 shrink-0 overflow-hidden">
+              <div className="w-full h-full bg-linear-to-br from-amber-700 to-amber-900 flex items-center justify-center">
                 <svg className="w-5 h-5 text-amber-300" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M9 18V5l12-2v13M9 18c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-2c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
                 </svg>

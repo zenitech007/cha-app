@@ -3,15 +3,10 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getSimilarArtists } from "@/app/actions/discovery";
-
-interface SimilarArtist {
-  name: string;
-  imageUrl: string;
-  match: string;
-}
+import type { ArtistModel as Artist } from "@/generated/prisma/models/Artist";
 
 export default function SimilarArtists({ currentArtistName }: { currentArtistName: string }) {
-  const [similar, setSimilar] = useState<SimilarArtist[]>([]);
+  const [similar, setSimilar] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -51,42 +46,35 @@ export default function SimilarArtists({ currentArtistName }: { currentArtistNam
 
       {/* Horizontal Scroll Container */}
       <div className="flex overflow-x-auto pb-6 gap-4 sm:gap-6 snap-x snap-mandatory hide-scrollbar">
-        {similar.map((artist) => {
-          // Convert Last.fm's string match (e.g. "0.85") to a clean percentage ("85%")
-          const matchPercent = Math.round(parseFloat(artist.match) * 100);
-          
-          return (
-            <Link 
-              key={artist.name} 
-              href={`/search?q=${encodeURIComponent(artist.name)}`}
-              className="group min-w-40 sm:min-w-45 snap-start relative overflow-hidden rounded-2xl bg-stone-900 border border-stone-800 hover:border-amber-700/40 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="aspect-square w-full overflow-hidden">
-                <img 
-                  src={artist.imageUrl} 
+        {similar.map((artist) => (
+          <Link
+            key={artist.id}
+            href={`/artists/${artist.slug}`}
+            className="group min-w-40 sm:min-w-45 snap-start relative overflow-hidden rounded-2xl bg-stone-900 border border-stone-800 hover:border-amber-700/40 transition-all duration-300 hover:-translate-y-1"
+          >
+            <div className="aspect-square w-full overflow-hidden">
+              {artist.imageUrl ? (
+                <img
+                  src={artist.imageUrl}
                   alt={artist.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-              </div>
-              <div className="p-4 bg-linear-to-t from-stone-950 to-stone-900/80">
-                <h4 className="font-bold text-white text-sm truncate group-hover:text-amber-400 transition-colors">
-                  {artist.name}
-                </h4>
-                <div className="mt-1 flex items-center gap-1.5">
-                  <div className="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-amber-600 rounded-full" 
-                      style={{ width: `${matchPercent}%` }}
-                    />
-                  </div>
-                  <span className="text-[10px] text-stone-500 font-medium whitespace-nowrap">
-                    {matchPercent}% Match
-                  </span>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-stone-500 text-4xl font-bold">
+                  {artist.name.charAt(0)}
                 </div>
-              </div>
-            </Link>
-          );
-        })}
+              )}
+            </div>
+            <div className="p-4 bg-linear-to-t from-stone-950 to-stone-900/80">
+              <h4 className="font-bold text-white text-sm truncate group-hover:text-amber-400 transition-colors">
+                {artist.name}
+              </h4>
+              <p className="text-xs text-stone-400 mt-1">
+                Artist
+              </p>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );

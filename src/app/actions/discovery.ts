@@ -2,39 +2,41 @@
 
 import { prisma } from "@/lib/prisma";
 
-export async function getSimilarArtists(artistName: string) {
-  if (!process.env.LASTFM_API_KEY) {
-    console.error("LASTFM_API_KEY is not set.");
-    return [];
-  }
-
+export async function getSimilarArtists(timezone: string) {
   try {
-    const url = `http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist=${encodeURIComponent(
-      artistName
-    )}&api_key=${process.env.LASTFM_API_KEY}&format=json&limit=6`;
+    // Safety catch for missing timezone strings
+    if (!timezone) timezone = "UTC"; 
 
-    const res = await fetch(url, { next: { revalidate: 86400 } }); // Cache for 24 hours
-    
-    if (!res.ok) {
-      throw new Error(`Last.fm API responded with status: ${res.status}`);
+    const continent = timezone.split("/")[0];
+    const countries = regionCountries[continent];
+
+    // 1. Try to fetch artists from the mapped region
+    if (countries && countries.length > 0) {
+      const regionalArtists = await prisma.artist.findMany({
+        where: { originCountry: { in: countries } },
+        take: 8,
+        orderBy: { name: "asc" },
+      });
+
+      // If we found artists for this region, return them
+      if (regionalArtists.length > 0) {
+        return regionalArtists;
+      }
     }
 
-    const data = await res.json();
-    
-    if (!data.similarartists || !data.similarartists.artist) {
-      return [];
-    }
+    // 2. FALLBACK: If timezone is unmapped (like UTC) OR the region has no artists yet
+    // Return a global fallback so the UI section doesn't sit empty
+    return await prisma.artist.findMany({
+      take: 8,
+      orderBy: [
+        { isFeatured: "desc" }, // Bring featured artists to the front
+        { createdAt: "desc" }   // Then sort by newest
+      ],
+    });
 
-    // Map the Last.fm data into a clean array for our UI
-    return data.similarartists.artist.map((artist: any) => ({
-      name: artist.name,
-      // Last.fm's image API is notoriously unreliable now, so we generate a consistent fallback
-      imageUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=1c1917&color=fbbf24&size=256`, 
-      match: artist.match, // A percentage of how similar they are (e.g., "0.85")
-    }));
   } catch (error) {
-    console.error("Error fetching similar artists:", error);
-    return [];
+    console.error("Error in getRegionalArtists pipeline:", error);
+    return []; // Only return empty on an actual database crash
   }
 }
 

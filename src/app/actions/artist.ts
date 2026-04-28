@@ -86,13 +86,18 @@ export async function createArtist(formData: FormData) {
   // ── Deep Data Pipeline ──────────────────────────────────
   // Run Spotify, Last.fm, and MusicBrainz in parallel for speed
   const [spotifyResult, lastfmResult, mbResult] = await Promise.all([
-    searchSpotifyArtist(name).catch(() => null),
-    fetchLastFmBio(name).catch(() => ({ bio: null })),
-    fetchMusicBrainzData(name).catch(() => ({
-      country: null,
-      wikipediaUrl: null,
-      officialWebsite: null,
-    })),
+    searchSpotifyArtist(name).catch((error) => {
+      console.error(`[External API Error] Spotify fetch failed for "${name}":`, error);
+      return null;
+    }),
+    fetchLastFmBio(name).catch((error) => {
+      console.error(`[External API Error] Last.fm bio fetch failed for "${name}":`, error);
+      return { bio: null };
+    }),
+    fetchMusicBrainzData(name).catch((error) => {
+      console.error(`[External API Error] MusicBrainz fetch failed for "${name}":`, error);
+      return { country: null, wikipediaUrl: null, officialWebsite: null };
+    }),
   ]);
 
   // Fetch albums from Spotify if we have a Spotify ID and no manual albums
@@ -114,51 +119,58 @@ export async function createArtist(formData: FormData) {
     (spotifyResult?.genres?.length ? spotifyResult.genres.join(", ") : null);
 
   // ── Save to Database ────────────────────────────────────
-  const artist = await prisma.artist.create({
-    data: {
-      slug: slugify(name),
-      name,
-      bio: finalBio,
-      imageUrl: finalImageUrl,
-      officialWebsite: finalWebsite,
-      originCountry: mbResult.country || null,
-      wikipediaUrl: mbResult.wikipediaUrl || null,
-      websiteUrl: mbResult.officialWebsite || null,
-      genres: finalGenres,
-      albums:
-        spotifyAlbums.length > 0
-          ? {
+  // ── Prepare Embedding First ──────────────────────────────
+  let vectorStr: string | null = null;
+  try {
+    const embeddingText = [name, finalBio].filter(Boolean).join(" — ");
+    const vector = await generateEmbedding(embeddingText);
+    vectorStr = `[${vector.join(",")}]`;
+  } catch (error) {
+    console.error("Failed to generate AI embedding for", name, error);
+    throw new Error("Failed to generate AI embedding. Artist creation aborted to maintain data consistency.");
+  }
+
+  // ── Save to Database (Atomically) ────────────────────────
+  await prisma.$transaction(async (tx) => {
+    const artist = await tx.artist.create({
+      data: {
+        slug: slugify(name),
+        name,
+        bio: finalBio,
+        imageUrl: finalImageUrl,
+        officialWebsite: finalWebsite,
+        originCountry: mbResult.country || null,
+        wikipediaUrl: mbResult.wikipediaUrl || null,
+        websiteUrl: mbResult.officialWebsite || null,
+        genres: finalGenres,
+        albums:
+          spotifyAlbums.length > 0
+            ? {
               create: spotifyAlbums.map((a) => ({
                 title: a.title,
                 releaseYear: a.releaseYear,
                 coverUrl: a.coverUrl,
               })),
             }
-          : undefined,
-      charityLinks: charityName
-        ? {
+            : undefined,
+        charityLinks: charityName
+          ? {
             create: [
               { organizationName: charityName, donationUrl: charityUrl },
             ],
           }
-        : undefined,
-    },
+          : undefined,
+      },
+    });
+
+    if (vectorStr) {
+      await tx.$executeRawUnsafe(
+        `UPDATE artists SET embedding = $1::vector WHERE id = $2`,
+        vectorStr,
+        artist.id,
+      );
+    }
   });
-
-  // Generate and store the embedding via raw SQL
-  try {
-    const embeddingText = [name, finalBio].filter(Boolean).join(" — ");
-    const vector = await generateEmbedding(embeddingText);
-    const vectorStr = `[${vector.join(",")}]`;
-
-    await prisma.$executeRawUnsafe(
-      `UPDATE artists SET embedding = $1::vector WHERE id = $2`,
-      vectorStr,
-      artist.id,
-    );
-  } catch {
-    console.error("Failed to generate embedding for", name);
-  }
 
   revalidatePath("/");
   revalidatePath("/artists");
